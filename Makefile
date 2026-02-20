@@ -1,9 +1,11 @@
 #Q ?= @
 CC = arm-none-eabi-gcc
+CXX = arm-none-eabi-g++
 BUILD_DIR = output
 BUILD_DIR_BUILD = output/build
 BUILD_DIR_TEST = output/sim
 CC_TEST = x86_64-w64-mingw32-gcc
+CXX_TEST = x86_64-w64-mingw32-g++
 CFLAGS_TEST = -std=c99
 CFLAGS_TEST += -Os -Wall
 CFLAGS_TEST += -ggdb
@@ -23,6 +25,7 @@ endef
 src = $(addprefix src/,\
   libs/storage.c \
   main.c \
+  file.cpp \
 )
 
 CFLAGS = -std=c99
@@ -85,10 +88,20 @@ $(addprefix $(BUILD_DIR_BUILD)/,%.o): %.c | $(BUILD_DIR_BUILD)
 	$(Q) mkdir -p $(dir $@)
 	$(Q) $(CC) $(CFLAGS) -c $^ -o $@
 
+$(addprefix $(BUILD_DIR_BUILD)/,%.o): %.cpp | $(BUILD_DIR_BUILD)
+	@echo "CXX     $^"
+	$(Q) mkdir -p $(dir $@)
+	$(Q) $(CXX) $(CFLAGS) -c $^ -o $@
+
 $(addprefix $(BUILD_DIR_TEST)/,%.o): %.c | $(BUILD_DIR_TEST)
 	@echo "CCTEST  $^"
 	$(Q) mkdir -p $(dir $@)
 	$(Q) $(CC_TEST) $(CFLAGS_TEST) -c $^ -o $@
+
+$(addprefix $(BUILD_DIR_TEST)/,%.o): %.cpp | $(BUILD_DIR_TEST)
+	@echo "CXXTEST $^"
+	$(Q) mkdir -p $(dir $@)
+	$(Q) $(CXX_TEST) $(CFLAGS_TEST) -c $^ -o $@
 
 $(BUILD_DIR_BUILD)/icon.o: assets/icon.png
 	@echo "ICON    $<"
